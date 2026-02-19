@@ -129,6 +129,16 @@
             display: none;
         }
 
+        .important-links-header {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .important-links-header {
+                display: flex;
+            }
+        }
+
         .important-links-title {
             font-size: 14px;
             color: #8b949e;
@@ -677,7 +687,21 @@
                 padding: 0 10px;
             }
 
-            .important-links-title {
+        .important-links-header {
+            display: none;
+        }
+
+        .important-links-section.collapsed .important-links-content {
+            display: none;
+        }
+
+        @media (min-width: 769px) {
+            .important-links-section.collapsed .important-links-content {
+                display: block;
+            }
+        }
+
+        .important-links-title {
                 font-size: 12px;
             }
 
@@ -694,6 +718,10 @@
             .important-links-grid.cols-2,
             .important-links-grid.cols-3 {
                 grid-template-columns: 1fr;
+            }
+
+            .important-links-header {
+                margin-bottom: 16px;
             }
 
             .important-link-title {
@@ -843,7 +871,7 @@
                 
                 const groups = ref([]);
                 const importantLinks = ref([]);
-                const importantLinksCollapsed = ref(true);
+                const importantLinksCollapsed = ref(window.innerWidth < 769);
                 const searchQuery = ref('');
                 const loading = ref(true);
                 const showModal = ref(false);
@@ -1115,6 +1143,10 @@
                 onMounted(() => {
                     fetchGroups();
                     fetchImportantLinks();
+                    
+                    window.addEventListener('resize', () => {
+                        importantLinksCollapsed.value = window.innerWidth < 769;
+                    });
                 });
 
                 const fetchImportantLinks = async () => {
