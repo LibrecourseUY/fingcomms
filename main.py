@@ -4,6 +4,9 @@ from fastapi.responses import FileResponse, RedirectResponse
 from pydantic import BaseModel
 from typing import Optional, List
 import os
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
@@ -292,16 +295,22 @@ def delete_important_link(link_id: int, db: Session = Depends(get_db)):
 
 @app.get("/favicon.svg")
 def serve_favicon():
+    logger = logging.getLogger(__name__)
+    logger.debug("FAVICON REQUEST - root_path: %s", app.root_path)
     return FileResponse("static/favicon.svg", media_type="image/svg+xml")
 
 
 @app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 def serve_catch_all(path: str):
+    logger = logging.getLogger(__name__)
+    logger.debug("CATCH-ALL REQUEST - path: %s, root_path: %s", path, app.root_path)
+
     if ".." in path:
         raise HTTPException(status_code=404, detail="Not found")
     if path.startswith("api/"):
         raise HTTPException(status_code=404, detail="Not found")
     if path.endswith("favicon.svg") or "favicon.svg" in path:
+        logger.debug("FAVICON MATCH in catch-all!")
         return FileResponse("static/favicon.svg", media_type="image/svg+xml")
     if path.startswith("static/"):
         return FileResponse(path)
