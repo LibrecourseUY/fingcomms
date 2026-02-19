@@ -300,11 +300,13 @@ def serve_admin():
     return FileResponse("static/admin.html")
 
 
-@app.get("/{path:path}")
+@app.api_route("/{path:path}", methods=["GET", "POST", "PUT", "DELETE"])
 def serve_catch_all(path: str):
+    if ".." in path:
+        raise HTTPException(status_code=404, detail="Not found")
     if path.startswith("api/"):
         raise HTTPException(status_code=404, detail="Not found")
-    if path == "admin" or path == "admin/":
+    if path.startswith("admin"):
         return FileResponse("static/admin.html")
     return FileResponse("static/index.html")
 
